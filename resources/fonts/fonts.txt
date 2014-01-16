@@ -1,0 +1,19 @@
+I don't have the rights to distribute the fonts used in this watch face.
+
+
+
+You can download them from dafont.com
+
+    
+
+Muro
+    http://img.dafont.com/dl/?f=muro
+
+    
+Bebas Neue
+    http://img.dafont.com/dl/?f=bebas_neue
+
+
+
+
+Just extract the zip files and place the .otf files in this folder!

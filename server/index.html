@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chunk v2.0 Config</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap-theme.min.css" rel="stylesheet">
+
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+
+			<h2>Chunk v2.0</h2>
+      
+      <form id="configure-form" class="form-configure well" action="#" method="POST">
+        <h4>Build Style</h4>
+        <p><small>Choose your favourite build style.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="style" id="style1" value="1"> BlackOnWhite
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="style" id="style2" value="2"> Split1(WhiteTop)
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="style" id="style3" value="3"> WhiteOnBlack
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="style" id="style4" value="4"> Split2(BlackTop)
+          </label>
+        </div>
+        <hr />
+        <h4>Bluetooth Vibe</h4>
+        <p><small>Vibrate on Bluetooth disconnect.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="bluetoothvibe" id="bluetoothvibe1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="bluetoothvibe" id="bluetoothvibe2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Hourly Vibe</h4>
+        <p><small>Vibrate on the hour.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="hourlyvibe" id="hourlyvibe1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="hourlyvibe" id="hourlyvibe2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Units</h4>
+        <p><small>Celsius or Fahrenheit</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="units" id="units1" value="1"> Celsius
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="units" id="units2" value="0"> Fahrenheit
+          </label>
+        </div>
+        <hr />
+        <h4>Blink</h4>
+        <p><small>The colon between the hours and minutes will blink every second.</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="blink" id="blink1" value="1"> Yes
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="blink" id="blink2" value="0"> No
+          </label>
+        </div>
+        <hr />
+        <h4>Date Format</h4>
+        <p><small>Control the date appearance. (will add more options at some point)</small></p>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary">
+            <input type="radio" name="dateformat" id="dateformat1" value="1"> No Suffix
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="dateformat" id="dateformat2" value="0"> Default
+          </label>
+        </div>
+        <hr />
+        <div class="clearfix">
+          <input class="btn btn-lg btn-primary btn-block" id="save" type="submit" value="Save"/>
+        </div>
+      </form>
+	  </div>
+
+    <div class="footer container">
+    	<p>Chunk Weather v2.0 by <a href="http://twitter.com/orviwan">orviwan</a></p>
+    </div>
+    
+    <script>
+      var mStyle;
+      var mBluetoothvibe;
+      var mHourlyvibe;
+      var mUnits;
+	  var mBlink;
+	  var mDateFormat;
+      
+      $().ready(function () {
+
+        mStyle = parseInt(localStorage.getItem("style"));      
+        mBluetoothvibe = parseInt(localStorage.getItem("bluetoothvibe"));
+        mHourlyvibe = parseInt(localStorage.getItem("hourlyvibe"));
+        mUnits = parseInt(localStorage.getItem("units"));
+		mBlink = parseInt(localStorage.getItem("blink"));
+		mDateFormat = parseInt(localStorage.getItem("dateformat"));
+        
+        if(isNaN(mStyle)) {
+          mStyle = 1;
+        }
+        if(isNaN(mBluetoothvibe)) {
+          mBluetoothvibe = 0;
+        }
+        if(isNaN(mHourlyvibe)) {
+          mHourlyvibe = 0;
+        }        
+        if(isNaN(mUnits)) {
+          mUnits = 0;
+        }       
+        if(isNaN(mBlink)) {
+          mBlink = 0;
+        }  
+        if(isNaN(mDateFormat)) {
+          mDateFormat = 0;
+        }  
+        
+        
+        $('#style1').prop('checked', false);
+        $('#style1').parent().removeClass('active');
+        $('#style2').prop('checked', false);
+        $('#style2').parent().removeClass('active');
+        $('#style3').prop('checked', false);
+        $('#style3').parent().removeClass('active');
+        $('#style4').prop('checked', false);
+        $('#style4').parent().removeClass('active');
+
+        switch(mStyle) {
+          case 1:
+            $('#style1').prop('checked', true);
+            $('#style1').parent().addClass('active');
+            break;
+          case 2:
+            $('#style2').prop('checked', true);
+            $('#style2').parent().addClass('active');
+            break;
+          case 3:
+            $('#style3').prop('checked', true);
+            $('#style3').parent().addClass('active');
+            break;
+          case 4:
+            $('#style4').prop('checked', true);
+            $('#style4').parent().addClass('active');
+            break;        
+        }
+
+        
+        if(mBluetoothvibe) {
+          $('#bluetoothvibe1').prop('checked', true);
+          $('#bluetoothvibe1').parent().addClass('active');
+          
+          $('#bluetoothvibe2').prop('checked', false);
+          $('#bluetoothvibe2').parent().removeClass('active');
+        } 
+        else {
+          $('#bluetoothvibe1').prop('checked', false);
+          $('#bluetoothvibe1').parent().removeClass('active');
+          
+          $('#bluetoothvibe2').prop('checked', true);
+          $('#bluetoothvibe2').parent().addClass('active'); 
+        }
+        
+        
+        if(mHourlyvibe) {
+          $('#hourlyvibe1').prop('checked', true);
+          $('#hourlyvibe1').parent().addClass('active');
+          
+          $('#hourlyvibe2').prop('checked', false);
+          $('#hourlyvibe2').parent().removeClass('active');
+        } 
+        else {
+          $('#hourlyvibe1').prop('checked', false);
+          $('#hourlyvibe1').parent().removeClass('active');
+          
+          $('#hourlyvibe2').prop('checked', true);
+          $('#hourlyvibe2').parent().addClass('active'); 
+        }
+        
+                
+        if(mUnits) {
+          $('#units1').prop('checked', true);
+          $('#units1').parent().addClass('active');
+          
+          $('#units2').prop('checked', false);
+          $('#units2').parent().removeClass('active');
+        } 
+        else {
+          $('#units1').prop('checked', false);
+          $('#units1').parent().removeClass('active');
+          
+          $('#units2').prop('checked', true);
+          $('#units2').parent().addClass('active'); 
+        }
+		
+        if(mBlink) {
+          $('#blink1').prop('checked', true);
+          $('#blink1').parent().addClass('active');
+          
+          $('#blink2').prop('checked', false);
+          $('#blink2').parent().removeClass('active');
+        } 
+        else {
+          $('#blink1').prop('checked', false);
+          $('#blink1').parent().removeClass('active');
+          
+          $('#blink2').prop('checked', true);
+          $('#blink2').parent().addClass('active'); 
+        }
+		
+        if(mDateFormat) {
+          $('#dateformat1').prop('checked', true);
+          $('#dateformat1').parent().addClass('active');
+          
+          $('#dateformat2').prop('checked', false);
+          $('#dateformat2').parent().removeClass('active');
+        } 
+        else {
+          $('#dateformat1').prop('checked', false);
+          $('#dateformat1').parent().removeClass('active');
+          
+          $('#dateformat2').prop('checked', true);
+          $('#dateformat2').parent().addClass('active'); 
+        }
+
+      });
+
+      $("#configure-form").submit(function(e) {  
+
+        mStyle = $('#style1').prop('checked') ? 1 : 0;
+        mStyle = $('#style2').prop('checked') ? 2 : mStyle;
+        mStyle = $('#style3').prop('checked') ? 3 : mStyle;
+        mStyle = $('#style4').prop('checked') ? 4 : mStyle;
+        
+        mBluetoothvibe = $('#bluetoothvibe1').prop('checked') ? 1 : 0;
+        mHourlyvibe = $('#hourlyvibe1').prop('checked') ? 1 : 0;
+        mUnits = $('#units1').prop('checked') ? 1 : 0;
+		mBlink = $('#blink1').prop('checked') ? 1 : 0;
+		mDateFormat = $('#dateformat1').prop('checked') ? 1 : 0;
+
+        localStorage.setItem("style", mStyle);  
+        localStorage.setItem("bluetoothvibe", mBluetoothvibe); 
+        localStorage.setItem("hourlyvibe", mHourlyvibe); 
+        localStorage.setItem("units", mUnits); 
+		localStorage.setItem("blink", mBlink); 
+		localStorage.setItem("dateformat", mDateFormat); 
+        
+        var j = {
+          style : parseInt(mStyle),
+          bluetoothvibe : parseInt(mBluetoothvibe),
+          hourlyvibe: parseInt(mHourlyvibe),
+          units : parseInt(mUnits),
+		  blink : parseInt(mBlink),
+		  dateformat : parseInt(mDateFormat)
+        };
+        
+        window.location.href = "pebblejs://close#" + JSON.stringify(j);
+
+        e.preventDefault();
+      });
+  </script>
+</body>
+</html>
