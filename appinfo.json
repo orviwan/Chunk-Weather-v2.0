@@ -3,8 +3,8 @@
   "shortName": "Chunk Weather v2.0",
   "longName": "Chunk Weather v2.0",
   "companyName": "",
-  "versionCode": 3,
-  "versionLabel": "2.0.3",
+  "versionCode": 4,
+  "versionLabel": "2.0.4",
   "watchapp": {
     "watchface": true
   },
