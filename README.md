@@ -12,6 +12,7 @@ Todo
 -------------
 
 Battery status
+
 Dynamic font size for temperature
 
 Fonts

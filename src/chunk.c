@@ -274,90 +274,11 @@ void weather_set_highlow(int16_t high, int16_t low) {
 	text_layer_set_text(mHighLowLayer, mHighLowText);
 }
 
-/*
-void weather_set_error(WeatherLayer* weather_layer, int http_status) {
-	weather_set_icon(weather_layer, WEATHER_ICON_NOT_AVAILABLE);
-	if(http_status==0) {
-		snprintf(temperature, sizeof(temperature), "%s%s", "?", "...");
-	}
-	else {
-		snprintf(temperature, sizeof(temperature), "%s%d", "E:", http_status-1000);
-	}
-	text_layer_set_text(&mTemperatureLayer, temperature);  
-}
-*/
-
-
-
-
-void request_weather();
-
-/*
-void handle_failed(int32_t cookie, int http_status, void* context) {
-	if(cookie == 0 || cookie == WEATHER_HTTP_COOKIE) {
-		weather_set_error(&weather_layer, http_status);
-	}
-	link_monitor_handle_failure(http_status);	
-	//request the location and weather on next minute tick
-	located = false;
-}
-
-void handle_success(int32_t cookie, int http_status, DictionaryIterator* received, void* context) {
-	if(cookie != WEATHER_HTTP_COOKIE) return;
-
-	//Weather icon
-	Tuple* icon_tuple = dict_find(received, WEATHER_CODE);
-	if(icon_tuple) {
-		icon = icon_tuple->value->int16;
-		if(icon >= 0 && icon <= 48) {
-			weather_set_icon(&weather_layer, icon);
-		} else {
-			weather_set_error(&weather_layer, http_status);
-		}
-	}
-	
-	//Today's high temperature
-	Tuple* high_tuple = dict_find(received, WEATHER_KEY_HIGH);
-	if(high_tuple) {
-		high = high_tuple->value->int16;
-	}
-	
-	//Today's low temperature
-	Tuple* low_tuple = dict_find(received, WEATHER_KEY_LOW);
-	if(low_tuple) {
-		low = low_tuple->value->int16;
-	}
-	
-	//Current temperature
-	Tuple* temperature_tuple = dict_find(received, WEATHER_KEY_TEMPERATURE);
-	if(temperature_tuple) {
-		weather_set_highlow(&weather_layer, high, low);
-		weather_set_temperature(&weather_layer, temperature_tuple->value->int16);
-	}
-
-	link_monitor_handle_success();
-}
-
-void handle_location(float latitude, float longitude, float altitude, float accuracy, void* context) {
-	// Fix the floats
-	our_latitude = latitude * 1000000;
-	our_longitude = longitude * 1000000;
-	located = true;
-	request_weather();
-}
-
-
-*/
-
 // HORIZONTAL LINE //
 void update_background_callback(Layer *me, GContext* ctx) { 
 	graphics_context_set_stroke_color(ctx, GColorBlack);
 	graphics_draw_line(ctx, GPoint(0, 81), GPoint(144, 81));		
 }
-
-
-
-
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 
@@ -445,19 +366,8 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   if (mConfigBlink && (units_changed & SECOND_UNIT)) {
     layer_set_hidden(text_layer_get_layer(mTimeSeparatorLayer), tick_time->tm_sec%2);
   }
-
-
-/*
-	if(!located || (t->tick_time->tm_min % FREQUENCY_MINUTES) == mInitialMinute) {
-		//Every FREQUENCY_MINUTES, request updated weather
-		http_location_request(); 
-	}
-	else {
-		//Every minute, ping the phone
-		link_monitor_ping();
-	}
-*/
 }
+
 static void in_received_handler(DictionaryIterator *iter, void *context) {
   bool setHighLow = false;
   Tuple *style_tuple = dict_find(iter, STYLE_KEY);
@@ -586,15 +496,6 @@ void handle_init(void) {
   mTimeLayer = layer_create(layer_get_frame(mWindowLayer));
   layer_add_child(mWindowLayer, mTimeLayer);
   
-  /*
-  mTimeLayer = text_layer_create(TIME_FRAME);  
-	text_layer_set_background_color(mTimeLayer, GColorClear);
-  text_layer_set_text_color(mTimeLayer, GColorBlack);
-	text_layer_set_font(mTimeLayer, mTimeFont);
-	text_layer_set_text_alignment(mTimeLayer, GTextAlignmentCenter);
-	layer_add_child(mWindowLayer, text_layer_get_layer(mTimeLayer));
-  */
-  
   // TIME HOUR LAYER //
   mTimeHourLayer = text_layer_create(TIME_HOUR_FRAME);  
 	text_layer_set_background_color(mTimeHourLayer, GColorClear);
@@ -619,8 +520,7 @@ void handle_init(void) {
 	text_layer_set_font(mTimeMinutesLayer, mTimeFont);
 	text_layer_set_text_alignment(mTimeMinutesLayer, GTextAlignmentLeft);
 	layer_add_child(mTimeLayer, text_layer_get_layer(mTimeMinutesLayer));  
-  
-  
+
     
   // DATE LAYER //
   mDateLayer = text_layer_create(DATE_FRAME);  
@@ -651,44 +551,16 @@ void handle_init(void) {
 	layer_add_child(mWindowLayer, text_layer_get_layer(mHighLowLayer));
 
 	weather_set_loading();
-  
-  //mConfigStyle = 4;
-  //setStyle();
-  
+
   app_message_init();
 
   time_t now = time(NULL);
   struct tm *tick_time = localtime(&now);  
-  //mInitialMinute = (tick_time->tm_min % FREQUENCY_MINUTES);
   
   handle_tick(tick_time, SECOND_UNIT + MINUTE_UNIT + HOUR_UNIT + DAY_UNIT);
   tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
   
 }
-
-
-
-/*
-void request_weather() {
-	if(!located) {
-		http_location_request();
-		return;
-	}
-	// Build the HTTP request
-	DictionaryIterator *body;
-	HTTPResult result = http_out_get(SERVER_URL, WEATHER_HTTP_COOKIE, &body);
-	if(result != HTTP_OK) {
-		return;
-	}
-	dict_write_int32(body, WEATHER_KEY_LATITUDE, our_latitude);
-	dict_write_int32(body, WEATHER_KEY_LONGITUDE, our_longitude);
-	dict_write_cstring(body, WEATHER_KEY_UNIT_SYSTEM, UNIT_SYSTEM); //units
-	// Send it.
-	if(http_out_send() != HTTP_OK) {
-		return;
-	}
-}
-*/
 
 void handle_deinit(void) {
 
