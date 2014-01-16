@@ -3,7 +3,7 @@ var locationOptions = { "timeout": 15000, "maximumAge": 60000 };
 var locationWatcher;
 
 function fetchWeather(latitude, longitude) {
-
+  //console.log("Fetch Weather");
   var response;
   var req = new XMLHttpRequest();
   req.open('GET', "http://www.mirz.com/Chunk2/Yahoo.php?" +
@@ -11,7 +11,7 @@ function fetchWeather(latitude, longitude) {
   req.onload = function(e) {
     if (req.readyState == 4) {
       if(req.status == 200) {
-        console.log(req.responseText);
+        //console.log(req.responseText);
         response = JSON.parse(req.responseText);
         var temperature, icon, high, low;
         if (response) {
@@ -30,7 +30,7 @@ function fetchWeather(latitude, longitude) {
         }
 
       } else {
-        console.log("Weather Error");
+        //console.log("Weather Error");
       }
     }
   }
@@ -97,6 +97,8 @@ Pebble.addEventListener("ready", function(e) {
 
 
 Pebble.addEventListener("appmessage", function(e) {
+
+  //console.log("AppMessage");
   window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
 });
 
