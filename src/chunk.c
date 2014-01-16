@@ -32,7 +32,7 @@ static GFont *mTimeFont;
 static GFont *mTemperatureFont;   
 static GFont *mHighLowFont;
 
-//static int mInitialMinute;
+static int mInitialMinute;
 
 static int mConfigStyle;               //1=BlackOnWhite, 2=Split1(WhiteTop), 3=WhiteOnBlack, 4=Split2(BlackTop)
 static int mConfigBluetoothVibe;       //0=off 1=on
@@ -280,6 +280,8 @@ void update_background_callback(Layer *me, GContext* ctx) {
 	graphics_draw_line(ctx, GPoint(0, 81), GPoint(144, 81));		
 }
 
+static void fetch_data(void);
+
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 
   if (units_changed & DAY_UNIT) {
@@ -362,6 +364,11 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
     static char minute_text[] = "00";	
     strftime(minute_text, sizeof(minute_text), "%M", tick_time);	
     text_layer_set_text(mTimeMinutesLayer, minute_text);
+    
+    if((tick_time->tm_min % FREQUENCY_MINUTES) == mInitialMinute) {
+      fetch_data();
+    }    
+    
   }
   if (mConfigBlink && (units_changed & SECOND_UNIT)) {
     layer_set_hidden(text_layer_get_layer(mTimeSeparatorLayer), tick_time->tm_sec%2);
@@ -386,6 +393,13 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *blink_tuple = dict_find(iter, BLINK_KEY);
   if (blink_tuple) {
     mConfigBlink = blink_tuple->value->uint8;
+    tick_timer_service_unsubscribe();
+    if(mConfigBlink) {
+      tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
+    }
+    else {
+      tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+    }
   }
   Tuple *dateformat_tuple = dict_find(iter, DATEFORMAT_KEY);
   if (dateformat_tuple && dateformat_tuple->value->uint8 != mConfigDateFormat) {
@@ -461,7 +475,7 @@ static void fetch_data(void) {
 static void app_message_init(void) {
   app_message_register_inbox_received(in_received_handler);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-  fetch_data();
+  //fetch_data();
 }
 
 void handle_init(void) {
@@ -549,15 +563,18 @@ void handle_init(void) {
 	text_layer_set_font(mHighLowLayer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)); //mHighLowFont);
 	text_layer_set_text_alignment(mHighLowLayer, GTextAlignmentCenter);
 	layer_add_child(mWindowLayer, text_layer_get_layer(mHighLowLayer));
-
+  
+  
 	weather_set_loading();
 
   app_message_init();
 
   time_t now = time(NULL);
   struct tm *tick_time = localtime(&now);  
+  mInitialMinute = (tick_time->tm_min % FREQUENCY_MINUTES);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "mInitialMinute: %d", mInitialMinute);
   
-  handle_tick(tick_time, SECOND_UNIT + MINUTE_UNIT + HOUR_UNIT + DAY_UNIT);
+  handle_tick(tick_time, DAY_UNIT + HOUR_UNIT + MINUTE_UNIT + SECOND_UNIT);
   tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
   
 }

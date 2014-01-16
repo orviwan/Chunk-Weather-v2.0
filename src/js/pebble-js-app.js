@@ -35,15 +35,6 @@ function fetchWeather(latitude, longitude) {
     }
   }
   req.send(null);
-
-  startTimer();
-
-}
-
-function startTimer() {
-  setTimeout(function(){
-    window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
-  },900000); //15 mins
 }
 
 function locationSuccess(pos) {
@@ -54,6 +45,12 @@ function locationSuccess(pos) {
 
 function locationError(err) {
   //console.warn('JS locationError(' + err.code + '): ' + err.message);
+  Pebble.sendAppMessage({
+    "temperature": 999,
+    "icon": 48,
+    "high": 0,
+    "low": 0
+    });
 }
 
 function saveLocalData(config) {
@@ -76,7 +73,6 @@ function loadLocalData() {
   mConfig.configureUrl = "http://www.mirz.com/Chunk2/index.html";
 }
 function returnConfigToPebble() {
-  //console.log("JS returnConfigToPebble()");
   Pebble.sendAppMessage({
     "style":parseInt(mConfig.style), 
     "bluetoothvibe":parseInt(mConfig.bluetoothvibe), 
@@ -85,7 +81,6 @@ function returnConfigToPebble() {
     "blink":parseInt(mConfig.blink),
     "dateformat":parseInt(mConfig.dateformat)
   });
-  window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
 }
 function UnitsToString(unit) {
   if(unit==0) {
@@ -96,19 +91,15 @@ function UnitsToString(unit) {
 
 
 Pebble.addEventListener("ready", function(e) {
-  //console.log("JS ready!");
-  //locationWatcher = window.navigator.geolocation.watchPosition(locationSuccess, locationError, locationOptions);
   loadLocalData();
   returnConfigToPebble();
 });
 
-/*
-Pebble.addEventListener("appmessage", function(e) {
-  console.log("JS appmessage!" + e.payload);
-  window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
 
+Pebble.addEventListener("appmessage", function(e) {
+  window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
 });
-*/
+
 
 Pebble.addEventListener("showConfiguration", function(e) {
 	Pebble.openURL(mConfig.configureUrl);
