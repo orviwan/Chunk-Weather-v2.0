@@ -1,0 +1,6 @@
+The weather icons included with this release are copyright 'Mike Afford Media'.
+
+You are free to use this set of icons in any Pebble watch face, but please include this licence with any source distribution.
+
+If you want the full set of icons in much better quality, please visit:
+http://www.mikeafford.com/store/index.html
