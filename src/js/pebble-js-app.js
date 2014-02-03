@@ -1,7 +1,7 @@
 var mConfig = {};
 var locationOptions = { "timeout": 15000, "maximumAge": 60000 }; 
 var locationWatcher;
-<<<<<<< HEAD
+
 var mLastDate = null; //when was weather last received
 
 /* Convenient function to automatically retry messages. */
@@ -44,11 +44,7 @@ function fetchWeather(latitude, longitude) {
     //console.log("First date");
     mLastDate = new Date();
   }
-=======
 
-function fetchWeather(latitude, longitude) {
-  //console.log("Fetch Weather");
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
   var response;
   var req = new XMLHttpRequest();
   req.open('GET', "http://www.mirz.com/Chunk2/Yahoo.php?" +
@@ -66,20 +62,13 @@ function fetchWeather(latitude, longitude) {
           high = weatherResult.high;
           low = weatherResult.low;
 
-<<<<<<< HEAD
+
           Pebble.sendAppMessageWithRetry({
-=======
-          Pebble.sendAppMessage({
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
             "temperature": temperature,
             "icon": code,
             "high": high,
             "low": low
-<<<<<<< HEAD
             }, 10);
-=======
-            });
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
         }
 
       } else {
@@ -91,7 +80,6 @@ function fetchWeather(latitude, longitude) {
 }
 
 function locationSuccess(pos) {
-<<<<<<< HEAD
     //console.log("JS locationSuccess()");
     var coordinates = pos.coords;
     fetchWeather(coordinates.latitude, coordinates.longitude);
@@ -100,21 +88,10 @@ function locationSuccess(pos) {
 function locationError(err) {
     //console.warn('JS locationError(' + err.code + '): ' + err.message);
     Pebble.sendAppMessageWithRetry({
-=======
-  //console.log("JS locationSuccess()");
-  var coordinates = pos.coords;
-  fetchWeather(coordinates.latitude, coordinates.longitude);
-}
-
-function locationError(err) {
-  //console.warn('JS locationError(' + err.code + '): ' + err.message);
-  Pebble.sendAppMessage({
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
     "temperature": 999,
     "icon": 48,
     "high": 0,
     "low": 0
-<<<<<<< HEAD
     }, 10);
 }
 
@@ -167,39 +144,6 @@ function returnConfigToPebble() {
         "dateformat":parseInt(mConfig.dateformat)
     }, 10);
     getWeather();
-=======
-    });
-}
-
-function saveLocalData(config) {
-  localStorage.setItem("style", parseInt(config.style));  
-  localStorage.setItem("bluetoothvibe", parseInt(config.bluetoothvibe)); 
-  localStorage.setItem("hourlyvibe", parseInt(config.hourlyvibe)); 
-  localStorage.setItem("units", parseInt(config.units));  
-  localStorage.setItem("blink", parseInt(config.blink));
-  localStorage.setItem("dateformat", parseInt(config.dateformat));
-  
-  loadLocalData();
-}
-function loadLocalData() {
-  mConfig.style = parseInt(localStorage.getItem("style"));
-  mConfig.bluetoothvibe = parseInt(localStorage.getItem("bluetoothvibe"));
-  mConfig.hourlyvibe = parseInt(localStorage.getItem("hourlyvibe"));
-  mConfig.units = parseInt(localStorage.getItem("units"));
-  mConfig.blink = parseInt(localStorage.getItem("blink"));
-  mConfig.dateformat = parseInt(localStorage.getItem("dateformat"));
-  mConfig.configureUrl = "http://www.mirz.com/Chunk2/index.html";
-}
-function returnConfigToPebble() {
-  Pebble.sendAppMessage({
-    "style":parseInt(mConfig.style), 
-    "bluetoothvibe":parseInt(mConfig.bluetoothvibe), 
-    "hourlyvibe":parseInt(mConfig.hourlyvibe),
-    "units":parseInt(mConfig.units),
-    "blink":parseInt(mConfig.blink),
-    "dateformat":parseInt(mConfig.dateformat)
-  });
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
 }
 function UnitsToString(unit) {
   if(unit==0) {
@@ -207,13 +151,10 @@ function UnitsToString(unit) {
   }
   return "c";
 }
-<<<<<<< HEAD
+
 function getWeather() {
   window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
 }
-=======
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
-
 
 Pebble.addEventListener("ready", function(e) {
   loadLocalData();
@@ -222,19 +163,10 @@ Pebble.addEventListener("ready", function(e) {
 
 
 Pebble.addEventListener("appmessage", function(e) {
-<<<<<<< HEAD
   //console.log("AppMessage");
   getWeather();
 });
 
-=======
-
-  //console.log("AppMessage");
-  window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
-});
-
-
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
 Pebble.addEventListener("showConfiguration", function(e) {
 	Pebble.openURL(mConfig.configureUrl);
 });
