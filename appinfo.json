@@ -3,13 +3,8 @@
   "shortName": "Chunk Weather v2.0",
   "longName": "Chunk Weather v2.0",
   "companyName": "",
-<<<<<<< HEAD
   "versionCode": 6,
   "versionLabel": "2.0.6",
-=======
-  "versionCode": 4,
-  "versionLabel": "2.0.4",
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
   "watchapp": {
     "watchface": true
   },
@@ -32,32 +27,13 @@
         "type": "font",
         "characterRegex": "[:0-9A-Zv. - \u00B0]",
         "name": "SMALL_22",
-<<<<<<< HEAD
         "file": "fonts/BebasNeue.ttf"
-=======
-        "file": "fonts/BebasNeue.otf"
-      },
-      {
-        "type": "font",
-        "characterRegex": "[:0-9A-Za-z \u00B0]",
-        "name": "SMALL_26",
-        "file": "fonts/BebasNeue.otf"
-      },
-      {
-        "type": "font",
-        "name": "MEDIUM_34",
-        "file": "fonts/MuroRegular.otf"
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
       },
       {
         "type": "font",
         "characterRegex": "[:0-9]",
         "name": "BIG_52",
-<<<<<<< HEAD
         "file": "fonts/MuroRegular.ttf"
-=======
-        "file": "fonts/MuroRegular.otf"
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
       },
       {
         "menuIcon": true,
