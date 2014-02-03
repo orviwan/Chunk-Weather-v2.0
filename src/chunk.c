@@ -27,21 +27,13 @@ static char mHighLowText[36];
 
 static GBitmap *mWeatherIcon;
 
-<<<<<<< HEAD
 //static GFont *mDateFont;
 static GFont *mTimeFont;
 //static GFont *mTemperatureFont;   
 static GFont *mHighLowFont;
 
 static int mTimerMinute = 0;
-=======
-static GFont *mDateFont;
-static GFont *mTimeFont;
-static GFont *mTemperatureFont;   
-static GFont *mHighLowFont;
-
 static int mInitialMinute;
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
 
 static int mConfigStyle;               //1=BlackOnWhite, 2=Split1(WhiteTop), 3=WhiteOnBlack, 4=Split2(BlackTop)
 static int mConfigBluetoothVibe;       //0=off 1=on
@@ -374,7 +366,6 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
     strftime(minute_text, sizeof(minute_text), "%M", tick_time);	
     text_layer_set_text(mTimeMinutesLayer, minute_text);
     
-<<<<<<< HEAD
     if(FREQUENCY_MINUTES == mTimerMinute) {
       fetch_data();
       mTimerMinute = 0;
@@ -382,12 +373,7 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
     else {
       mTimerMinute++;
     } 
-=======
-    if((tick_time->tm_min % FREQUENCY_MINUTES) == mInitialMinute) {
-      fetch_data();
-    }    
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
-    
+
   }
   if (mConfigBlink && (units_changed & SECOND_UNIT)) {
     layer_set_hidden(text_layer_get_layer(mTimeSeparatorLayer), tick_time->tm_sec%2);
@@ -429,14 +415,10 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   }  
   Tuple *units_tuple = dict_find(iter, WEATHER_UNITS);
   if (units_tuple) {
-<<<<<<< HEAD
     if(units_tuple->value->uint8 != mConfigWeatherUnit) {
         mConfigWeatherUnit = units_tuple->value->uint8;
         fetch_data();
     }
-=======
-    mConfigWeatherUnit = units_tuple->value->uint8;
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
   }
   Tuple *weather_temperature_tuple = dict_find(iter, WEATHER_TEMPERATURE_KEY);
   if (weather_temperature_tuple && weather_temperature_tuple->value->int16 != mTemperatureDegrees) {
@@ -463,10 +445,6 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   }
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
 static void fetch_data(void) {
 
   Tuplet style_tuple = TupletInteger(STYLE_KEY, 0);
@@ -525,7 +503,6 @@ void handle_init(void) {
   layer_set_update_proc(mBackgroundLayer, update_background_callback);
 
   // FONTS //
-<<<<<<< HEAD
 	//ResHandle res_d = resource_get_handle(RESOURCE_ID_SMALL_26);
 	ResHandle res_t = resource_get_handle(RESOURCE_ID_BIG_52);
 	//ResHandle res_temp = resource_get_handle(RESOURCE_ID_MEDIUM_34);
@@ -537,20 +514,6 @@ void handle_init(void) {
 	mHighLowFont = fonts_load_custom_font(res_hl);
   
   // TIME LAYER //  
-=======
-	ResHandle res_d = resource_get_handle(RESOURCE_ID_SMALL_26);
-	ResHandle res_t = resource_get_handle(RESOURCE_ID_BIG_52);
-	ResHandle res_temp = resource_get_handle(RESOURCE_ID_MEDIUM_34);
-	ResHandle res_hl = resource_get_handle(RESOURCE_ID_SMALL_22);
-  
-	mDateFont = fonts_load_custom_font(res_d);
-	mTimeFont = fonts_load_custom_font(res_t);
-	mTemperatureFont = fonts_load_custom_font(res_temp);
-	mHighLowFont = fonts_load_custom_font(res_hl);
-  
-  // TIME LAYER //
-  
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
   mTimeLayer = layer_create(layer_get_frame(mWindowLayer));
   layer_add_child(mWindowLayer, mTimeLayer);
   
@@ -578,11 +541,7 @@ void handle_init(void) {
 	text_layer_set_font(mTimeMinutesLayer, mTimeFont);
 	text_layer_set_text_alignment(mTimeMinutesLayer, GTextAlignmentLeft);
 	layer_add_child(mTimeLayer, text_layer_get_layer(mTimeMinutesLayer));  
-<<<<<<< HEAD
-=======
 
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
-    
   // DATE LAYER //
   mDateLayer = text_layer_create(DATE_FRAME);  
 	text_layer_set_background_color(mDateLayer, GColorClear);
@@ -610,24 +569,16 @@ void handle_init(void) {
 	text_layer_set_font(mHighLowLayer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)); //mHighLowFont);
 	text_layer_set_text_alignment(mHighLowLayer, GTextAlignmentCenter);
 	layer_add_child(mWindowLayer, text_layer_get_layer(mHighLowLayer));
-<<<<<<< HEAD
-    
-=======
-  
-  
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
+
 	weather_set_loading();
 
   app_message_init();
 
   time_t now = time(NULL);
   struct tm *tick_time = localtime(&now);  
-<<<<<<< HEAD
-=======
+
   mInitialMinute = (tick_time->tm_min % FREQUENCY_MINUTES);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "mInitialMinute: %d", mInitialMinute);
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
-  
+
   handle_tick(tick_time, DAY_UNIT + HOUR_UNIT + MINUTE_UNIT + SECOND_UNIT);
   tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
   
@@ -636,13 +587,10 @@ void handle_init(void) {
 void handle_deinit(void) {
 
   fonts_unload_custom_font(mTimeFont);
-<<<<<<< HEAD
+
   //fonts_unload_custom_font(mDateFont);
 	//fonts_unload_custom_font(mTemperatureFont);
-=======
-  fonts_unload_custom_font(mDateFont);
-	fonts_unload_custom_font(mTemperatureFont);
->>>>>>> 7a0d8f494bef39fc04af0f0f20b587ccf1a59ea8
+
 	fonts_unload_custom_font(mHighLowFont);
 
   layer_remove_from_parent(bitmap_layer_get_layer(mWeatherIconLayer));
