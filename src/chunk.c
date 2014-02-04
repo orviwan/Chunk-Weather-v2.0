@@ -29,8 +29,8 @@ static GBitmap *mWeatherIcon;
 
 //static GFont *mDateFont;
 static GFont *mTimeFont;
-//static GFont *mTemperatureFont;   
-static GFont *mHighLowFont;
+static GFont *mTemperatureFont;   
+//static GFont *mHighLowFont;
 
 static int mTimerMinute = 0;
 static int mInitialMinute;
@@ -416,8 +416,10 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *units_tuple = dict_find(iter, WEATHER_UNITS);
   if (units_tuple) {
     if(units_tuple->value->uint8 != mConfigWeatherUnit) {
+		//APP_LOG(APP_LOG_LEVEL_DEBUG, "UNIT! %d, %d", mConfigWeatherUnit, units_tuple->value->uint8);
         mConfigWeatherUnit = units_tuple->value->uint8;
         fetch_data();
+		return;
     }
   }
   Tuple *weather_temperature_tuple = dict_find(iter, WEATHER_TEMPERATURE_KEY);
@@ -505,13 +507,13 @@ void handle_init(void) {
   // FONTS //
 	//ResHandle res_d = resource_get_handle(RESOURCE_ID_SMALL_26);
 	ResHandle res_t = resource_get_handle(RESOURCE_ID_BIG_52);
-	//ResHandle res_temp = resource_get_handle(RESOURCE_ID_MEDIUM_34);
-	ResHandle res_hl = resource_get_handle(RESOURCE_ID_SMALL_22);
+	ResHandle res_temp = resource_get_handle(RESOURCE_ID_MEDIUM_34);
+	//ResHandle res_hl = resource_get_handle(RESOURCE_ID_SMALL_22);
   
 	//mDateFont = fonts_load_custom_font(res_d);
 	mTimeFont = fonts_load_custom_font(res_t);
-	//mTemperatureFont = fonts_load_custom_font(res_temp);
-	mHighLowFont = fonts_load_custom_font(res_hl);
+	mTemperatureFont = fonts_load_custom_font(res_temp);
+	//mHighLowFont = fonts_load_custom_font(res_hl);
   
   // TIME LAYER //  
   mTimeLayer = layer_create(layer_get_frame(mWindowLayer));
@@ -589,9 +591,9 @@ void handle_deinit(void) {
   fonts_unload_custom_font(mTimeFont);
 
   //fonts_unload_custom_font(mDateFont);
-	//fonts_unload_custom_font(mTemperatureFont);
+	fonts_unload_custom_font(mTemperatureFont);
 
-	fonts_unload_custom_font(mHighLowFont);
+	//fonts_unload_custom_font(mHighLowFont);
 
   layer_remove_from_parent(bitmap_layer_get_layer(mWeatherIconLayer));
   bitmap_layer_destroy(mWeatherIconLayer);

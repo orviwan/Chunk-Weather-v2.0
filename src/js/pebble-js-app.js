@@ -1,6 +1,5 @@
 var mConfig = {};
 var locationOptions = { "timeout": 15000, "maximumAge": 60000 }; 
-var locationWatcher;
 
 var mLastDate = null; //when was weather last received
 
@@ -30,7 +29,8 @@ Pebble.sendAppMessageWithRetry = function(message, retryCount, successCb, failed
 
 function fetchWeather(latitude, longitude) {
   //console.log("Fetch Weather");
-  if(mLastDate!=null) {
+/*
+  if(mLastDate!==null) {
     //console.log("Checking date");
     var d = new Date();
     var diffMs = (d - mLastDate);
@@ -44,6 +44,7 @@ function fetchWeather(latitude, longitude) {
     //console.log("First date");
     mLastDate = new Date();
   }
+  */
 
   var response;
   var req = new XMLHttpRequest();
@@ -54,14 +55,13 @@ function fetchWeather(latitude, longitude) {
       if(req.status == 200) {
         //console.log(req.responseText);
         response = JSON.parse(req.responseText);
-        var temperature, icon, high, low;
+        var temperature, high, low, code;
         if (response) {
           var weatherResult = response;
           temperature = weatherResult.temp;
           code = weatherResult.code;
           high = weatherResult.high;
           low = weatherResult.low;
-
 
           Pebble.sendAppMessageWithRetry({
             "temperature": temperature,
@@ -75,7 +75,7 @@ function fetchWeather(latitude, longitude) {
         //console.log("Weather Error");
       }
     }
-  }
+  };
   req.send(null);
 }
 
@@ -115,7 +115,7 @@ function loadLocalData() {
     mConfig.configureUrl = "http://www.mirz.com/Chunk2/index.html";
 
     if(isNaN(mConfig.style)) {
-        mConfig.style = 0;
+        mConfig.style = 1;
     }
     if(isNaN(mConfig.bluetoothvibe)) {
         mConfig.bluetoothvibe = 1;
@@ -124,10 +124,10 @@ function loadLocalData() {
         mConfig.hourlyvibe = 0;
     }   
     if(isNaN(mConfig.units)) {
-        mConfig.units = 0;
+        mConfig.units = 1;
     } 
     if(isNaN(mConfig.blink)) {
-        mConfig.blink = 0;
+        mConfig.blink = 1;
     } 
     if(isNaN(mConfig.dateformat)) {
         mConfig.dateformat = 0;
@@ -146,14 +146,14 @@ function returnConfigToPebble() {
     getWeather();
 }
 function UnitsToString(unit) {
-  if(unit==0) {
+  if(unit===0) {
     return "f";
   }
   return "c";
 }
 
 function getWeather() {
-  window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
+  navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
 }
 
 Pebble.addEventListener("ready", function(e) {
