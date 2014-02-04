@@ -1,5 +1,5 @@
 {
-    "versionLabel": "2.0.7",
+    "versionLabel": "2.0.8",
     "uuid": "9141b628-bc89-498e-b147-29087ab9b619",
     "appKeys": {
         "style": 0,
@@ -14,7 +14,7 @@
         "icon": 5
     },
     "longName": "Chunk Weather v2.0",
-    "versionCode": 7,
+    "versionCode": 8,
     "capabilities": [
         "location",
         "configurable"
@@ -278,15 +278,15 @@
                 "file": "images/menu_icon.png"
             },
             {
-                "characterRegex": "[:0-9 \u00b0]",
-                "type": "font",
-                "name": "MEDIUM_34",
-                "file": "fonts/MuroRegular.ttf"
-            },
-            {
                 "characterRegex": "[:0-9]",
                 "type": "font",
                 "name": "BIG_52",
+                "file": "fonts/MuroRegular.ttf"
+            },
+            {
+                "characterRegex": "[:0-9 \u00b0-]",
+                "type": "font",
+                "name": "MEDIUM_34",
                 "file": "fonts/MuroRegular.ttf"
             },
             {
