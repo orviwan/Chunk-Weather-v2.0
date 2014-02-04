@@ -16,4 +16,7 @@ Bebas Neue
 
 
 
-Just extract the zip files and place the .otf files in this folder!
+Just extract the zip files, convert the OTF to .TTF using http://www.freefontconverter.com/ and place the .ttf files in this folder!
+
+MuroRegular.ttf
+BebasNeue.ttf
