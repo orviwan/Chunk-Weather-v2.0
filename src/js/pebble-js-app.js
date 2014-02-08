@@ -1,8 +1,6 @@
 var mConfig = {};
 var locationOptions = { "timeout": 15000, "maximumAge": 60000 }; 
 
-var mLastDate = null; //when was weather last received
-
 /* Convenient function to automatically retry messages. */
 Pebble.sendAppMessageWithRetry = function(message, retryCount, successCb, failedCb) {
   var retry = 0;

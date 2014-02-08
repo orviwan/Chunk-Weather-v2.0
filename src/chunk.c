@@ -3,7 +3,11 @@
 #include <ctype.h>
 
 #include "config.h"
+#include "locale_helpers.h"
 
+///////
+language_t mLanguage = ENGLISH;
+	
 static Window *mWindow;
 
 static Layer *mWindowLayer;
@@ -266,12 +270,12 @@ void weather_set_temperature(int16_t t) {
 void weather_set_loading() {
 	snprintf(mHighLowText, sizeof(mHighLowText), "%s", "CHUNK v2.0"); //"LOW 999\u00B0 HIGH 999\u00B0"); //
 	text_layer_set_text(mHighLowLayer, mHighLowText);
-  weather_set_icon(48);  
-  weather_set_temperature(999);
+	weather_set_icon(48);  
+	weather_set_temperature(999);
 }
 
 void weather_set_highlow(int16_t high, int16_t low) {
-	snprintf(mHighLowText, sizeof(mHighLowText), "LOW %d\u00B0 HIGH %d\u00B0", low, high);
+	snprintf(mHighLowText, sizeof(mHighLowText), "%s %d\u00B0 %s %d\u00B0", locale_low(mLanguage), low, locale_high(mLanguage), high);
 	text_layer_set_text(mHighLowLayer, mHighLowText);
 }
 
@@ -287,15 +291,20 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 
   if (units_changed & DAY_UNIT) {
   
-    static char date_day[] = "XXX";
-    static char date_monthday[] = "00";
-    static char date_month[] = "XXX";    
-    static char full_date_text[20] = "";
+    static char date_day[4];
+    static char date_monthday[3];
+    static char date_month[6];    
+    static char full_date_text[20];
     
-    strftime(date_day,
+    /*strftime(date_day,
                sizeof(date_day),
                "%a",
-               tick_time);
+               tick_time);*/
+
+	snprintf(date_day, 
+                sizeof(date_day), 
+                "%s",
+			 locale_day_name(tick_time->tm_wday, mLanguage));
 
     strftime(date_monthday,
              sizeof(date_monthday),
@@ -308,10 +317,16 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
               sizeof(date_monthday) - 1); //remove leading zero
     }
 
-    strftime(date_month,
+    /* strftime(date_month,
              sizeof(date_month),
              "%b",
-             tick_time);
+             tick_time); */
+	  
+
+	snprintf(date_month, 
+                sizeof(date_month), 
+                "%s",
+			 locale_month_name(2, mLanguage)); //tick_time->tm_mon
              
     if(mConfigDateFormat==0) {
       snprintf(full_date_text, 
@@ -544,10 +559,10 @@ void handle_init(void) {
 	text_layer_set_text_alignment(mTimeMinutesLayer, GTextAlignmentLeft);
 	layer_add_child(mTimeLayer, text_layer_get_layer(mTimeMinutesLayer));  
 
-  // DATE LAYER //
-  mDateLayer = text_layer_create(DATE_FRAME);  
+	// DATE LAYER //
+	mDateLayer = text_layer_create(DATE_FRAME);  
 	text_layer_set_background_color(mDateLayer, GColorClear);
-  text_layer_set_text_color(mDateLayer, GColorBlack);
+	text_layer_set_text_color(mDateLayer, GColorBlack);
 	text_layer_set_font(mDateLayer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));//mDateFont);
 	text_layer_set_text_alignment(mDateLayer, GTextAlignmentCenter);
 	layer_add_child(mWindowLayer, text_layer_get_layer(mDateLayer)); 

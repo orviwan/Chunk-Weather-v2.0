@@ -1,5 +1,5 @@
 {
-    "versionLabel": "2.0.8",
+    "versionLabel": "2.0.10",
     "uuid": "9141b628-bc89-498e-b147-29087ab9b619",
     "appKeys": {
         "style": 0,
@@ -14,7 +14,7 @@
         "icon": 5
     },
     "longName": "Chunk Weather v2.0",
-    "versionCode": 8,
+    "versionCode": 10,
     "capabilities": [
         "location",
         "configurable"
