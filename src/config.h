@@ -15,7 +15,7 @@
 #define WEATHER_ICON_FRAME  (GRect(9, 2, 50, 50))
 #define WEATHER_TEMP_FRAME  (GRect(61, 4, 83, 50))
 #define WEATHER_HL_FRAME    (GRect(0, 53, 144, 30))
-#define INVERT_TOP_FRAME    (GRect(0, 0, 144, 81))
-#define INVERT_BOTTOM_FRAME (GRect(0, 81, 144, 87))
+#define INVERT_TOP_FRAME    (GRect(0, 0, 144, 83))
+#define INVERT_BOTTOM_FRAME (GRect(0, 83, 144, 87))
 
 #endif

@@ -10,8 +10,8 @@ Pebble.sendAppMessageWithRetry = function(message, retryCount, successCb, failed
     }
   };
   var failed = function(e) {
-    console.log("Failed sending message: " + JSON.stringify(message) +
-      " - Error: " + JSON.stringify(e) + " - Retrying...");
+    /* console.log("Failed sending message: " + JSON.stringify(message) +
+      " - Error: " + JSON.stringify(e) + " - Retrying..."); */
     retry++;
     if (retry < retryCount) {
       Pebble.sendAppMessage(message, success, failed);
@@ -27,23 +27,6 @@ Pebble.sendAppMessageWithRetry = function(message, retryCount, successCb, failed
 
 function fetchWeather(latitude, longitude) {
   //console.log("Fetch Weather");
-/*
-  if(mLastDate!==null) {
-    //console.log("Checking date");
-    var d = new Date();
-    var diffMs = (d - mLastDate);
-    var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000); 
-    if(diffMins<5) {
-      //console.log("Diff mins! " + diffMins);
-      return;
-    }
-  }
-  else {
-    //console.log("First date");
-    mLastDate = new Date();
-  }
-  */
-
   var response;
   var req = new XMLHttpRequest();
   req.open('GET', "http://www.mirz.com/Chunk2/Yahoo.php?" +
@@ -99,7 +82,10 @@ function saveLocalData(config) {
     localStorage.setItem("hourlyvibe", parseInt(config.hourlyvibe)); 
     localStorage.setItem("units", parseInt(config.units));  
     localStorage.setItem("blink", parseInt(config.blink));
-    localStorage.setItem("dateformat", parseInt(config.dateformat));
+    localStorage.setItem("dateformat", parseInt(config.dateformat));	
+
+	localStorage.setItem("gpslat", config.gpslat===null?'':config.gpslat);
+	localStorage.setItem("gpslon", config.gpslon===null?'':config.gpslon);
 
     loadLocalData();
 }
@@ -110,7 +96,9 @@ function loadLocalData() {
     mConfig.units = parseInt(localStorage.getItem("units"));
     mConfig.blink = parseInt(localStorage.getItem("blink"));
     mConfig.dateformat = parseInt(localStorage.getItem("dateformat"));
-    mConfig.configureUrl = "http://www.mirz.com/Chunk2/index.html";
+    mConfig.configureUrl = "http://www.mirz.com/Chunk2/index2.html";
+	mConfig.gpslat = localStorage.getItem("gpslat");
+	mConfig.gpslon = localStorage.getItem("gpslon");
 
     if(isNaN(mConfig.style)) {
         mConfig.style = 1;
@@ -151,7 +139,15 @@ function UnitsToString(unit) {
 }
 
 function getWeather() {
-  navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);
+	if(mConfig.gpslat!=='' && mConfig.gpslon!=='') {
+		//console.log("used fixed gps");
+		fetchWeather(mConfig.gpslat, mConfig.gpslon);
+	}
+	else {
+		//console.log("used auto gps");
+		navigator.geolocation.getCurrentPosition(locationSuccess, locationError, locationOptions);		
+	}
+  
 }
 
 Pebble.addEventListener("ready", function(e) {
@@ -161,7 +157,6 @@ Pebble.addEventListener("ready", function(e) {
 
 
 Pebble.addEventListener("appmessage", function(e) {
-  //console.log("AppMessage");
   getWeather();
 });
 

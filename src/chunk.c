@@ -15,6 +15,9 @@ static Layer *mBackgroundLayer;
 
 static BitmapLayer *mWeatherIconLayer;
 
+static GBitmap *battery_image;
+static BitmapLayer *battery_image_layer;
+
 static InverterLayer *mInvertBottomLayer;
 static InverterLayer *mInvertTopLayer;
 
@@ -46,10 +49,10 @@ static int mConfigWeatherUnit;         //1=Celsius 0=Fahrenheit
 static int mConfigBlink;               //0=Static 1=Blink
 static int mConfigDateFormat;          //0=Default 1=NoSuffix
 
-static int mTemperatureDegrees;        //-999 to 999
-static int mTemperatureIcon;           //0 to 48
-static int mTemperatureHigh;           //-999 to 999
-static int mTemperatureLow;            //-999 to 999
+static int mTemperatureDegrees=999;        //-999 to 999
+static int mTemperatureIcon=48;         //0 to 48
+static int mTemperatureHigh=999;          //-999 to 999
+static int mTemperatureLow=999;            //-999 to 999
 
 
 enum {
@@ -65,7 +68,14 @@ enum {
   DATEFORMAT_KEY = 0x9                 // TUPLE_INT
 };
 
-
+static uint8_t BATTERY_ICONS[] = {
+	RESOURCE_ID_BATTERY_100,
+	RESOURCE_ID_BATTERY_080,
+	RESOURCE_ID_BATTERY_060,
+	RESOURCE_ID_BATTERY_040,
+	RESOURCE_ID_BATTERY_020,
+	RESOURCE_ID_BATTERY_000
+};
 
 static uint8_t WEATHER_ICONS[] = {
 	RESOURCE_ID_IMAGE_TORNADO,
@@ -236,8 +246,10 @@ static void set_invert_bottom() {
 static void setStyle() {
   remove_invert_top();
   remove_invert_bottom();
+  layer_set_hidden(mBackgroundLayer, true);
   switch(mConfigStyle) {
     case 1:
+	  layer_set_hidden(mBackgroundLayer, false);
       break;
     case 2:
       set_invert_bottom();
@@ -245,6 +257,7 @@ static void setStyle() {
     case 3:
       set_invert_top();
       set_invert_bottom();
+	  layer_set_hidden(mBackgroundLayer, false);
       break;
     case 4:
       set_invert_top();
@@ -263,7 +276,12 @@ void weather_set_icon(WeatherIcon icon) {
 }
 
 void weather_set_temperature(int16_t t) {
-	snprintf(mTemperatureText, sizeof(mTemperatureText), "%d\u00B0", t); //\u00B0
+	if(t==999) {
+		snprintf(mTemperatureText, sizeof(mTemperatureText), "%s\u00B0", "???");
+	} else {
+		snprintf(mTemperatureText, sizeof(mTemperatureText), "%d\u00B0", t);
+	}
+	
 	text_layer_set_text(mTemperatureLayer, mTemperatureText);  
 }
 
@@ -275,14 +293,20 @@ void weather_set_loading() {
 }
 
 void weather_set_highlow(int16_t high, int16_t low) {
-	snprintf(mHighLowText, sizeof(mHighLowText), "%s %d\u00B0 %s %d\u00B0", locale_low(mLanguage), low, locale_high(mLanguage), high);
+	if(high==99 && low==0) {
+		snprintf(mHighLowText, sizeof(mHighLowText), "%s %s\u00B0 %s %s\u00B0", locale_low(mLanguage), "?", locale_high(mLanguage), "?");
+	}
+	else {
+		snprintf(mHighLowText, sizeof(mHighLowText), "%s %d\u00B0 %s %d\u00B0", locale_low(mLanguage), low, locale_high(mLanguage), high);
+	}
+	
 	text_layer_set_text(mHighLowLayer, mHighLowText);
 }
 
 // HORIZONTAL LINE //
 void update_background_callback(Layer *me, GContext* ctx) { 
 	graphics_context_set_stroke_color(ctx, GColorBlack);
-	graphics_draw_line(ctx, GPoint(0, 81), GPoint(144, 81));		
+	graphics_draw_line(ctx, GPoint(0, 83), GPoint(144, 83));		
 }
 
 static void fetch_data(void);
@@ -462,6 +486,16 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   }
 }
 
+static void toggle_bluetooth(bool connected) {
+  if(!connected && mConfigBluetoothVibe) {
+    //vibe!
+    vibes_long_pulse();
+  }
+}
+void bluetooth_connection_callback(bool connected) {
+  toggle_bluetooth(connected);
+}
+
 static void fetch_data(void) {
 
   Tuplet style_tuple = TupletInteger(STYLE_KEY, 0);
@@ -503,6 +537,34 @@ static void app_message_init(void) {
   fetch_data();
 }
 
+static void update_battery(BatteryChargeState charge_state) {
+  uint8_t batteryPercent;
+  uint8_t img;
+
+  batteryPercent = charge_state.charge_percent;
+  
+  if(batteryPercent>=90) {
+     img = 0;
+  }
+  else if(batteryPercent>=80) {
+     img = 1;
+  }
+  else if(batteryPercent>=60) {
+     img = 2;
+  }
+  else if(batteryPercent>=40) {
+     img = 3;
+  }
+  else if(batteryPercent>=20) {
+     img = 4;
+  }
+  else {
+     img = 5;
+  }
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "BATTERY %d %d", batteryPercent, img);
+  set_container_image(&battery_image, battery_image_layer, BATTERY_ICONS[img], GPoint(50, 82));
+}
+
 void handle_init(void) {
 
   // WINDOW //
@@ -518,6 +580,19 @@ void handle_init(void) {
   mBackgroundLayer = layer_create(layer_get_frame(mWindowLayer));
   layer_add_child(mWindowLayer, mBackgroundLayer);
   layer_set_update_proc(mBackgroundLayer, update_background_callback);
+	
+	
+	
+  //BATTERY_ICONS
+  battery_image = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_100);
+  GRect frame4 = (GRect) {
+    .origin = { .x = 50, .y = 82 },
+    .size = battery_image->bounds.size
+  };
+
+  battery_image_layer = bitmap_layer_create(frame4);
+  bitmap_layer_set_bitmap(battery_image_layer, battery_image);
+  layer_add_child(mWindowLayer, bitmap_layer_get_layer(battery_image_layer));
 
   // FONTS //
 	//ResHandle res_d = resource_get_handle(RESOURCE_ID_SMALL_26);
@@ -599,6 +674,10 @@ void handle_init(void) {
   handle_tick(tick_time, DAY_UNIT + HOUR_UNIT + MINUTE_UNIT + SECOND_UNIT);
   tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
   
+  bluetooth_connection_service_subscribe(bluetooth_connection_callback);
+	
+  update_battery(battery_state_service_peek());
+  battery_state_service_subscribe(&update_battery);
 }
 
 void handle_deinit(void) {
@@ -612,8 +691,15 @@ void handle_deinit(void) {
 
   layer_remove_from_parent(bitmap_layer_get_layer(mWeatherIconLayer));
   bitmap_layer_destroy(mWeatherIconLayer);
+	
+  layer_remove_from_parent(bitmap_layer_get_layer(battery_image_layer));
+  bitmap_layer_destroy(battery_image_layer);
+  gbitmap_destroy(battery_image);
+  battery_image = NULL;
   
   tick_timer_service_unsubscribe();
+  bluetooth_connection_service_unsubscribe();
+  battery_state_service_unsubscribe();
   
   window_destroy(mWindow);
 }
