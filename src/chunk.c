@@ -350,7 +350,7 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 	snprintf(date_month, 
                 sizeof(date_month), 
                 "%s",
-			 locale_month_name(2, mLanguage)); //tick_time->tm_mon
+			 locale_month_name(tick_time->tm_mon, mLanguage)); //tick_time->tm_mon
              
     if(mConfigDateFormat==0) {
       snprintf(full_date_text, 
