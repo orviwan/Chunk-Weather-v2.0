@@ -34,10 +34,10 @@ static char mHighLowText[36];
 
 static GBitmap *mWeatherIcon;
 
-//static GFont *mDateFont;
+static GFont *mDateFont;
 static GFont *mTimeFont;
 static GFont *mTemperatureFont;   
-//static GFont *mHighLowFont;
+static GFont *mHighLowFont;
 
 static int mTimerMinute = 0;
 static int mInitialMinute;
@@ -48,11 +48,12 @@ static int mConfigHourlyVibe;          //0=off 1=on
 static int mConfigWeatherUnit;         //1=Celsius 0=Fahrenheit
 static int mConfigBlink;               //0=Static 1=Blink
 static int mConfigDateFormat;          //0=Default 1=NoSuffix
+static int mConfigLanguage;            //0=ENGLISH 1=ITALIAN 2=GERMAN 3=FRENCH 4=RUSSIAN
 
-static int mTemperatureDegrees=999;        //-999 to 999
-static int mTemperatureIcon=48;         //0 to 48
-static int mTemperatureHigh=999;          //-999 to 999
-static int mTemperatureLow=999;            //-999 to 999
+static int mTemperatureDegrees=999;    //-999 to 999
+static int mTemperatureIcon=48;        //0 to 48
+static int mTemperatureHigh=999;       //-999 to 999
+static int mTemperatureLow=999;        //-999 to 999
 
 
 enum {
@@ -65,7 +66,8 @@ enum {
   WEATHER_mTemperatureHigh_KEY = 0x6,  // TUPLE_INT
   WEATHER_mTemperatureLow_KEY = 0x7,   // TUPLE_INT
   BLINK_KEY = 0x8,                     // TUPLE_INT
-  DATEFORMAT_KEY = 0x9                 // TUPLE_INT
+  DATEFORMAT_KEY = 0x9,                // TUPLE_INT
+  LANGUAGE_KEY = 0xA                   // TUPLE_INT
 };
 
 static uint8_t BATTERY_ICONS[] = {
@@ -286,7 +288,7 @@ void weather_set_temperature(int16_t t) {
 }
 
 void weather_set_loading() {
-	snprintf(mHighLowText, sizeof(mHighLowText), "%s", "CHUNK v2.0"); //"LOW 999\u00B0 HIGH 999\u00B0"); //
+	snprintf(mHighLowText, sizeof(mHighLowText), "%s", "CHUNK v2.1"); //"LOW 999\u00B0 HIGH 999\u00B0"); //
 	text_layer_set_text(mHighLowLayer, mHighLowText);
 	weather_set_icon(48);  
 	weather_set_temperature(999);
@@ -315,10 +317,10 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 
   if (units_changed & DAY_UNIT) {
   
-    static char date_day[4];
+    static char date_day[6];
     static char date_monthday[3];
-    static char date_month[6];    
-    static char full_date_text[20];
+    static char date_month[8];    
+    static char full_date_text[26];
     
     /*strftime(date_day,
                sizeof(date_day),
@@ -329,6 +331,8 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
                 sizeof(date_day), 
                 "%s",
 			 locale_day_name(tick_time->tm_wday, mLanguage));
+	  
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "DAY NAME: %s", locale_day_name(tick_time->tm_wday, mLanguage));
 
     strftime(date_monthday,
              sizeof(date_monthday),
@@ -351,23 +355,25 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
                 sizeof(date_month), 
                 "%s",
 			 locale_month_name(tick_time->tm_mon, mLanguage)); //tick_time->tm_mon
+	
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "MONTH NAME: %s", locale_month_name(tick_time->tm_mon, mLanguage));
              
     if(mConfigDateFormat==0) {
       snprintf(full_date_text, 
                 sizeof(full_date_text), 
                 "%s %s%s %s", 
-                upcase(date_day), 
+                date_day, //upcase(date_day), 
                 date_monthday, 
                 getDaySuffix(tick_time->tm_mday),
-                upcase(date_month)); 
+                date_month); //upcase(date_month)); 
     }
     else {
       snprintf(full_date_text, 
                 sizeof(full_date_text), 
                 "%s %s %s", 
-                upcase(date_day), 
+                date_day, //upcase(date_day), 
                 date_monthday, 
-                upcase(date_month)); 
+                date_month); //upcase(date_month)); 
     }
     text_layer_set_text(mDateLayer, full_date_text);
   }
@@ -442,6 +448,7 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
       tick_timer_service_subscribe(SECOND_UNIT, handle_tick);
     }
     else {
+	  layer_set_hidden(text_layer_get_layer(mTimeSeparatorLayer), false);
       tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
     }
   }
@@ -460,6 +467,40 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
         fetch_data();
 		return;
     }
+  }
+  Tuple *language_tuple = dict_find(iter, LANGUAGE_KEY);
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "LANGUAGE_KEY! INIT");
+	if (language_tuple) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "LANGUAGE_KEY! %d", language_tuple->value->uint8);
+	}
+  if (language_tuple && language_tuple->value->uint8 != mConfigLanguage) {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "mConfigLanguage! %d", mConfigLanguage);
+	mConfigLanguage = language_tuple->value->uint8;
+	switch(mConfigLanguage) {
+        case 1: 
+  			mLanguage = ITALIAN;
+			break;
+        ;
+        case 2: 
+			mLanguage = GERMAN;
+			break;
+        ;
+        case 3: 
+			mLanguage = FRENCH;
+			break;
+        ;      
+        case 4: 
+			mLanguage = RUSSIAN;
+			break;
+		;
+        default: 
+			mLanguage = ENGLISH;
+        ;		
+	}
+    time_t now = time(NULL);
+    struct tm *tick_time = localtime(&now);  
+    handle_tick(tick_time, DAY_UNIT + HOUR_UNIT + MINUTE_UNIT + SECOND_UNIT);
+	setHighLow = true;
   }
   Tuple *weather_temperature_tuple = dict_find(iter, WEATHER_TEMPERATURE_KEY);
   if (weather_temperature_tuple && weather_temperature_tuple->value->int16 != mTemperatureDegrees) {
@@ -503,6 +544,7 @@ static void fetch_data(void) {
   Tuplet hourlyvibe_tuple = TupletInteger(HOURLYVIBE_KEY, 0);
   Tuplet blink_tuple = TupletInteger(BLINK_KEY, 0);
   Tuplet dateformat_tuple = TupletInteger(DATEFORMAT_KEY, 0);
+  Tuplet language_tuple = TupletInteger(LANGUAGE_KEY, 0);
   Tuplet units_tuple = TupletInteger(WEATHER_UNITS, 0);
   Tuplet weather_temperature_tuple = TupletInteger(WEATHER_TEMPERATURE_KEY, 0);
   Tuplet weather_icon_tuple = TupletInteger(WEATHER_ICON_KEY, 0);
@@ -526,6 +568,7 @@ static void fetch_data(void) {
   dict_write_tuplet(iter, &weather_low_tuple);
   dict_write_tuplet(iter, &blink_tuple);
   dict_write_tuplet(iter, &dateformat_tuple);
+  dict_write_tuplet(iter, &language_tuple);
   dict_write_end(iter);
 
   app_message_outbox_send();
@@ -595,15 +638,15 @@ void handle_init(void) {
   layer_add_child(mWindowLayer, bitmap_layer_get_layer(battery_image_layer));
 
   // FONTS //
-	//ResHandle res_d = resource_get_handle(RESOURCE_ID_SMALL_26);
+	ResHandle res_d = resource_get_handle(RESOURCE_ID_SMALL_26);
 	ResHandle res_t = resource_get_handle(RESOURCE_ID_BIG_52);
 	ResHandle res_temp = resource_get_handle(RESOURCE_ID_MEDIUM_34);
-	//ResHandle res_hl = resource_get_handle(RESOURCE_ID_SMALL_22);
+	ResHandle res_hl = resource_get_handle(RESOURCE_ID_SMALL_22);
   
-	//mDateFont = fonts_load_custom_font(res_d);
+	mDateFont = fonts_load_custom_font(res_d);
 	mTimeFont = fonts_load_custom_font(res_t);
 	mTemperatureFont = fonts_load_custom_font(res_temp);
-	//mHighLowFont = fonts_load_custom_font(res_hl);
+	mHighLowFont = fonts_load_custom_font(res_hl);
   
   // TIME LAYER //  
   mTimeLayer = layer_create(layer_get_frame(mWindowLayer));
@@ -638,7 +681,7 @@ void handle_init(void) {
 	mDateLayer = text_layer_create(DATE_FRAME);  
 	text_layer_set_background_color(mDateLayer, GColorClear);
 	text_layer_set_text_color(mDateLayer, GColorBlack);
-	text_layer_set_font(mDateLayer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));//mDateFont);
+	text_layer_set_font(mDateLayer, mDateFont); //fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD)
 	text_layer_set_text_alignment(mDateLayer, GTextAlignmentCenter);
 	layer_add_child(mWindowLayer, text_layer_get_layer(mDateLayer)); 
   	
@@ -658,7 +701,7 @@ void handle_init(void) {
   mHighLowLayer = text_layer_create(WEATHER_HL_FRAME);  
 	text_layer_set_background_color(mHighLowLayer, GColorClear);
   text_layer_set_text_color(mHighLowLayer, GColorBlack);
-	text_layer_set_font(mHighLowLayer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)); //mHighLowFont);
+	text_layer_set_font(mHighLowLayer, mHighLowFont); //fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD)
 	text_layer_set_text_alignment(mHighLowLayer, GTextAlignmentCenter);
 	layer_add_child(mWindowLayer, text_layer_get_layer(mHighLowLayer));
 
@@ -683,11 +726,9 @@ void handle_init(void) {
 void handle_deinit(void) {
 
   fonts_unload_custom_font(mTimeFont);
-
-  //fonts_unload_custom_font(mDateFont);
-	fonts_unload_custom_font(mTemperatureFont);
-
-	//fonts_unload_custom_font(mHighLowFont);
+  fonts_unload_custom_font(mDateFont);
+  fonts_unload_custom_font(mTemperatureFont);
+  fonts_unload_custom_font(mHighLowFont);
 
   layer_remove_from_parent(bitmap_layer_get_layer(mWeatherIconLayer));
   bitmap_layer_destroy(mWeatherIconLayer);

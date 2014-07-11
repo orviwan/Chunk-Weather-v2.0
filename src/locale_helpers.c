@@ -53,6 +53,23 @@ const char *locale_month_name(int month, language_t language) {
                 default: return "";
             };  
         ;
+        case RUSSIAN: 
+            switch(month) {
+                case 0: return "ЯНB";
+                case 1: return "ФЕB";
+                case 2: return "MAP";
+                case 3: return "AПP";
+                case 4: return "MAЙ";
+                case 5: return "ИЮH";
+                case 6: return "ИЮЛ";
+                case 7: return "ABГ";
+                case 8: return "CEH";
+                case 9: return "OКT";
+                case 10: return "HOЯ";
+                case 11: return "ДЕК";
+                default: return "";
+            };  
+		;
         default:  
             switch(month) {
                 case 0: return "JAN";
@@ -111,7 +128,19 @@ const char *locale_day_name(int day, language_t language) {
                 case 6: return "SÁB";
                 default: return "";
             };  
-        ;         
+        ;      
+        case RUSSIAN: 
+            switch(day) {
+                case 0: return "BC";
+                case 1: return "ПH";
+                case 2: return "BT";
+                case 3: return "CP";
+                case 4: return "ЧT";
+                case 5: return "ПT";
+                case 6: return "CБ";
+                default: return "";
+            };
+		;
         default: 
             switch(day) {
                 case 0: return "SUN";
@@ -134,6 +163,9 @@ const char *locale_low(language_t language) {
         case FRENCH:
             return "MIN"; 
         ;
+        case RUSSIAN:
+            return "MИH"; 
+        ;		
         default: return "LOW";
     };
 }
@@ -143,6 +175,9 @@ const char *locale_high(language_t language) {
         case GERMAN:
         case FRENCH:
             return "MAX"; 
+        ;
+        case RUSSIAN:
+            return "MAКC"; 
         ;
         default: 
             return "HIGH";
