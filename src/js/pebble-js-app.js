@@ -83,7 +83,6 @@ function saveLocalData(config) {
     localStorage.setItem("units", parseInt(config.units));  
     localStorage.setItem("blink", parseInt(config.blink));
     localStorage.setItem("dateformat", parseInt(config.dateformat));	
-	localStorage.setItem("language", parseInt(config.language));	
 
 	localStorage.setItem("gpslat", config.gpslat===null?'':config.gpslat);
 	localStorage.setItem("gpslon", config.gpslon===null?'':config.gpslon);
@@ -97,8 +96,7 @@ function loadLocalData() {
     mConfig.units = parseInt(localStorage.getItem("units"));
     mConfig.blink = parseInt(localStorage.getItem("blink"));
     mConfig.dateformat = parseInt(localStorage.getItem("dateformat"));
-	mConfig.language = parseInt(localStorage.getItem("language"));
-    mConfig.configureUrl = "http://www.mirz.com/Chunk2/index2.1.html";
+    mConfig.configureUrl = "http://www.mirz.com/Chunk2/index2.html";
 	mConfig.gpslat = localStorage.getItem("gpslat");
 	mConfig.gpslon = localStorage.getItem("gpslon");
 
@@ -120,9 +118,6 @@ function loadLocalData() {
     if(isNaN(mConfig.dateformat)) {
         mConfig.dateformat = 0;
     } 
-    if(isNaN(mConfig.language)) {
-        mConfig.language = 0;
-    } 
   
 }
 function returnConfigToPebble() {
@@ -132,8 +127,7 @@ function returnConfigToPebble() {
         "hourlyvibe":parseInt(mConfig.hourlyvibe),
         "units":parseInt(mConfig.units),
         "blink":parseInt(mConfig.blink),
-        "dateformat":parseInt(mConfig.dateformat),
-		"language":parseInt(mConfig.language)
+        "dateformat":parseInt(mConfig.dateformat)
     }, 10);
     getWeather();
 }
