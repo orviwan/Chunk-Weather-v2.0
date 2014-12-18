@@ -324,7 +324,7 @@
     "shortName": "Chunk Weather v2.0",
     "uuid": "9141b628-bc89-498e-b147-29087ab9b619",
     "versionCode": 10,
-    "versionLabel": "2.2",
+    "versionLabel": "2.3",
     "watchapp": {
         "watchface": true
     }

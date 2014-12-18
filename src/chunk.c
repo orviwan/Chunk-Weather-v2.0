@@ -299,7 +299,7 @@ void weather_set_highlow(int16_t high, int16_t low) {
 	char *sys_locale = setlocale(LC_ALL, "");
 	
 	char wordlow[4] = "MIN";
-	char wordhigh[4] = "MAX";
+	char wordhigh[5] = "MAX";
 	
 	if (strcmp("en_US", sys_locale) == 0) {
 		snprintf(wordlow, sizeof(wordlow), "%s", "LOW");
