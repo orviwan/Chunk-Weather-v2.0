@@ -268,11 +268,8 @@ static void setStyle() {
 }
 
 void weather_set_icon(WeatherIcon icon) {	
-  layer_remove_from_parent(bitmap_layer_get_layer(mWeatherIconLayer));
-  mWeatherIconLayer = bitmap_layer_create(WEATHER_ICON_FRAME);  
   set_container_image(&mWeatherIcon, mWeatherIconLayer, WEATHER_ICONS[icon], GPoint(9, 2));  
-	layer_add_child(mWindowLayer, bitmap_layer_get_layer(mWeatherIconLayer));
-  
+
   //Reapply inverter
   setStyle();
 }
@@ -716,7 +713,8 @@ void handle_deinit(void) {
 
   layer_remove_from_parent(bitmap_layer_get_layer(mWeatherIconLayer));
   bitmap_layer_destroy(mWeatherIconLayer);
-	
+  gbitmap_destroy(mWeatherIcon);
+
   layer_remove_from_parent(bitmap_layer_get_layer(battery_image_layer));
   bitmap_layer_destroy(battery_image_layer);
   gbitmap_destroy(battery_image);
@@ -725,6 +723,17 @@ void handle_deinit(void) {
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
+ 
+  text_layer_destroy(mHighLowLayer);
+  text_layer_destroy(mTimeSeparatorLayer);
+  text_layer_destroy(mTemperatureLayer);
+  text_layer_destroy(mDateLayer);
+  text_layer_destroy(mTimeMinutesLayer);
+  text_layer_destroy(mTimeHourLayer);
+  layer_destroy(mTimeLayer);
+  layer_destroy(mBackgroundLayer);
+  remove_invert_top();
+  remove_invert_bottom();  
   
   window_destroy(mWindow);
 }
