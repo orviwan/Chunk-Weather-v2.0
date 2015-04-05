@@ -30,7 +30,7 @@ function fetchWeather(latitude, longitude) {
   var response;
   var req = new XMLHttpRequest();
   req.open('GET', "http://www.mirz.com/Chunk2/Yahoo.php?" +
-    "lat=" + latitude + "&long=" + longitude + "&units=" + UnitsToString(mConfig.units), true);
+    "lat=" + latitude + "&long=" + longitude + "&v=24&units=" + UnitsToString(mConfig.units), true);
   req.onload = function(e) {
     if (req.readyState == 4) {
       if(req.status == 200) {

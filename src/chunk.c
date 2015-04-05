@@ -327,7 +327,7 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   
 		char *sys_locale = setlocale(LC_ALL, "");
 		
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", sys_locale);
+//		APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", sys_locale);
 		
     static char date_day[4];
     static char date_monthday[3];
@@ -365,7 +365,7 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
              tick_time);
 		char date_test[50];
 		strftime(date_test, sizeof(date_test), "%a %b", tick_time);
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", date_test);
+//		APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", date_test);
 		
 	  
 
