@@ -275,7 +275,9 @@ void weather_set_icon(WeatherIcon icon) {
 }
 
 void weather_set_temperature(int16_t t) {
-	if(t==999) {
+  
+  // Changed from 999 as sometimes we get a error where the temp is 998.
+	if(t>=200) {
 		snprintf(mTemperatureText, sizeof(mTemperatureText), "%s\u00B0", "???");
 	} else {
 		snprintf(mTemperatureText, sizeof(mTemperatureText), "%d\u00B0", t);
@@ -285,15 +287,19 @@ void weather_set_temperature(int16_t t) {
 }
 
 void weather_set_loading() {
-	snprintf(mHighLowText, sizeof(mHighLowText), "%s", "CHUNK v2.0"); //"LOW 999\u00B0 HIGH 999\u00B0"); //
+	snprintf(mHighLowText, sizeof(mHighLowText), "%s", "CHUNK v2.1"); //"LOW 999\u00B0 HIGH 999\u00B0"); //
 	text_layer_set_text(mHighLowLayer, mHighLowText);
 	weather_set_icon(48);  
 	weather_set_temperature(999);
 }
 
-void weather_set_highlow(int16_t high, int16_t low) {
+void weather_set_highlow(int16_t high, int16_t low, int16_t current) {
 	
 	char *sys_locale = setlocale(LC_ALL, "");
+
+  // Temporary hold of the values before i manipulate them.
+  int16_t thigh = high;
+  int16_t tlow  = low;
 	
 	char wordlow[4] = "MIN";
 	char wordhigh[5] = "MAX";
@@ -302,12 +308,22 @@ void weather_set_highlow(int16_t high, int16_t low) {
 		snprintf(wordlow, sizeof(wordlow), "%s", "LOW");
 		snprintf(wordhigh, sizeof(wordhigh), "%s", "HIGH");
 	}
+
+  // Override the value if the current is lower.
+  if (current < tlow) {
+    tlow = current;
+  }
+
+  // Override the value if the current is higher than the high.
+  if (current > thigh) {
+    thigh = current;
+  }
 	
-	if(high==99 && low==0) {
+	if(thigh==99 && tlow==0) {
 		snprintf(mHighLowText, sizeof(mHighLowText), "%s %s\u00B0 %s %s\u00B0", wordlow, "?", wordhigh, "?");
 	}
 	else {
-		snprintf(mHighLowText, sizeof(mHighLowText), "%s %d\u00B0 %s %d\u00B0", wordlow, low, wordhigh, high);
+		snprintf(mHighLowText, sizeof(mHighLowText), "%s %d\u00B0 %s %d\u00B0", wordlow, tlow, wordhigh, thigh);
 	}
 	
 	text_layer_set_text(mHighLowLayer, mHighLowText);
@@ -504,7 +520,7 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
     setHighLow = true;
   }
   if(setHighLow) {
-    weather_set_highlow(mTemperatureHigh, mTemperatureLow);
+    weather_set_highlow(mTemperatureHigh, mTemperatureLow, mTemperatureDegrees);
   }
 }
 
