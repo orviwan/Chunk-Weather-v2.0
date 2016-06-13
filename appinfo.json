@@ -325,12 +325,13 @@
   "shortName": "Chunk Weather",
   "uuid": "9141b628-bc89-498e-b147-29087ab9b619",
   "versionCode": 10,
-  "versionLabel": "2.4",
+  "versionLabel": "2.5",
   "watchapp": {
     "watchface": true
   },
   "targetPlatforms": [
     "aplite",
-    "basalt"
+    "basalt",
+    "chalk"
   ]
 }
