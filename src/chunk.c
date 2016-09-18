@@ -270,7 +270,7 @@ void weather_set_temperature(int16_t t) {
 }
 
 void weather_set_loading() {
-	snprintf(mHighLowText, sizeof(mHighLowText), "%s", "CHUNK v2.5"); //"LOW 999\u00B0 HIGH 999\u00B0"); //
+	snprintf(mHighLowText, sizeof(mHighLowText), "%s", "CHUNK v4.0"); //"LOW 999\u00B0 HIGH 999\u00B0"); //
 	text_layer_set_text(mHighLowLayer, mHighLowText);
 	weather_set_icon(48);
 	weather_set_temperature(999);
@@ -465,11 +465,12 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *units_tuple = dict_find(iter, WEATHER_UNITS);
   if (units_tuple) {
     if(units_tuple->value->uint8 != mConfigWeatherUnit) {
-		//APP_LOG(APP_LOG_LEVEL_DEBUG, "UNIT! %d, %d", mConfigWeatherUnit, units_tuple->value->uint8);
-        mConfigWeatherUnit = units_tuple->value->uint8;
-        fetch_data();
-		return;
+		  //APP_LOG(APP_LOG_LEVEL_DEBUG, "UNIT! %d, %d", mConfigWeatherUnit, units_tuple->value->uint8);
+      mConfigWeatherUnit = units_tuple->value->uint8;
+      fetch_data();
+		  return;
     }
+    fetch_data();
   }
   Tuple *weather_temperature_tuple = dict_find(iter, WEATHER_TEMPERATURE_KEY);
   if (weather_temperature_tuple && weather_temperature_tuple->value->int16 != mTemperatureDegrees) {
@@ -507,18 +508,6 @@ void bluetooth_connection_callback(bool connected) {
 }
 
 static void fetch_data(void) {
-
-  Tuplet style_tuple = TupletInteger(STYLE_KEY, 0);
-  Tuplet bluetoothvibe_tuple = TupletInteger(BLUETOOTHVIBE_KEY, 0);
-  Tuplet hourlyvibe_tuple = TupletInteger(HOURLYVIBE_KEY, 0);
-  Tuplet blink_tuple = TupletInteger(BLINK_KEY, 0);
-  Tuplet dateformat_tuple = TupletInteger(DATEFORMAT_KEY, 0);
-  Tuplet units_tuple = TupletInteger(WEATHER_UNITS, 0);
-  Tuplet weather_temperature_tuple = TupletInteger(WEATHER_TEMPERATURE_KEY, 0);
-  Tuplet weather_icon_tuple = TupletInteger(WEATHER_ICON_KEY, 0);
-  Tuplet weather_high_tuple = TupletInteger(WEATHER_TEMPERATUREHIGH_KEY, 0);
-  Tuplet weather_low_tuple = TupletInteger(WEATHER_TEMPERATURELOW_KEY, 0);
-
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
 
@@ -526,25 +515,12 @@ static void fetch_data(void) {
     return;
   }
 
-  dict_write_tuplet(iter, &style_tuple);
-  dict_write_tuplet(iter, &bluetoothvibe_tuple);
-  dict_write_tuplet(iter, &hourlyvibe_tuple);
-  dict_write_tuplet(iter, &units_tuple);
-  dict_write_tuplet(iter, &weather_temperature_tuple);
-  dict_write_tuplet(iter, &weather_icon_tuple);
-  dict_write_tuplet(iter, &weather_high_tuple);
-  dict_write_tuplet(iter, &weather_low_tuple);
-  dict_write_tuplet(iter, &blink_tuple);
-  dict_write_tuplet(iter, &dateformat_tuple);
-  dict_write_end(iter);
-
   app_message_outbox_send();
 }
 
 static void app_message_init(void) {
   app_message_register_inbox_received(in_received_handler);
   app_message_open(128, 128);
-  fetch_data();
 }
 
 static void update_battery(BatteryChargeState charge_state) {

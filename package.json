@@ -1,7 +1,6 @@
 {
-  "version": "2.5.0",
+  "version": "4.0",
   "author": "Orviwan",
-  "private": true,
   "dependencies": {},
   "keywords": [
     "pebble-app"
@@ -48,7 +47,7 @@
         },
         {
           "type": "font",
-          "characterRegex": "[:0-9A-Zv. - \u00b0?]",
+          "characterRegex": "[:0-9A-Zv. - °?]",
           "name": "SMALL_22",
           "file": "fonts/BebasNeue.ttf"
         },
@@ -60,7 +59,7 @@
         },
         {
           "type": "font",
-          "characterRegex": "[:0-9? \u00b0-]",
+          "characterRegex": "[:0-9? °-]",
           "name": "MEDIUM_34",
           "file": "fonts/MuroRegular.ttf"
         },
@@ -325,8 +324,8 @@
       "blink": 8,
       "icon": 5
     },
-    "enableMultiJS": false,
-    "displayName": "Chunk Weather v2.4",
+    "enableMultiJS": true,
+    "displayName": "Chunk Weather",
     "watchapp": {
       "onlyShownOnCommunication": false,
       "hiddenApp": false,
@@ -335,12 +334,13 @@
     "targetPlatforms": [
       "aplite",
       "basalt",
-      "chalk"
+      "chalk",
+      "diorite"
     ],
     "capabilities": [
       "location",
       "configurable"
     ]
   },
-  "name": "Chunk Weather"
+  "name": "chunk-weather"
 }
