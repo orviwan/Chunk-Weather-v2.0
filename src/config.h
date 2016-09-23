@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
+#include <pebble.h>
 
 //Check for new weather every X minutes
 #define FREQUENCY_MINUTES 15
@@ -19,5 +19,3 @@
 #define WEATHER_HL_FRAME    PBL_IF_RECT_ELSE(GRect(0, 53, 144, 30), GRect(18, 13, 144, 30))
 #define INVERT_TOP_FRAME    PBL_IF_RECT_ELSE(GRect(0, 0, 144, 83), GRect(18, 0, 144, 83))
 #define INVERT_BOTTOM_FRAME PBL_IF_RECT_ELSE(GRect(0, 83, 144, 87), GRect(18, 83, 144, 87))
-
-#endif
