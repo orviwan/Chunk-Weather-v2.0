@@ -6,6 +6,9 @@
 #include "config.h"
 #include "color.h"
 
+//25 up
+//15 down
+
 static Window *s_window;
 static Layer *s_window_layer, *s_background_layer, *s_time_layer;
 static TextLayer *s_date_layer, *s_time_hour_layer, *s_time_separator_layer,
@@ -172,6 +175,53 @@ static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, con
   layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
 }
 
+static bool s_screen_is_obstructed;
+static int s_obstruction_diff = 0;
+
+// Event fires once, before the obstruction appears or disappears
+void prv_unobstructed_will_change(GRect final_unobstructed_screen_area, void *context) {
+  if (s_screen_is_obstructed) {
+    // Obstruction is about disappear
+  } else {
+    // Obstruction is about to appear
+    // Hide the things HERE
+
+  }
+}
+
+// Event fires once, after obstruction appears or disappears
+void prv_unobstructed_did_change(void *context) {
+  // Keep track if the screen is obstructed or not
+  s_screen_is_obstructed = !s_screen_is_obstructed;
+
+  if(!s_screen_is_obstructed) {
+    // Show the things HERE
+
+  }
+}
+
+// Event fires frequently, while obstruction is appearing or disappearing
+void prv_unobstructed_change(AnimationProgress progress, void *context) {
+  // Current unobstructed window size
+  GRect full_bounds = layer_get_bounds(s_window_layer);
+  GRect bounds = layer_get_unobstructed_bounds(s_window_layer);
+  s_obstruction_diff = (full_bounds.size.h - bounds.size.h) / 2.5;
+
+  // Move things HERE
+  GRect frame = layer_get_frame(s_background_layer);
+  frame.origin.y = s_obstruction_diff * -1;
+  layer_set_frame(s_background_layer, frame);
+
+  GRect frame2 = layer_get_frame(text_layer_get_layer(s_temperature_layer));
+  frame2.origin.y = WEATHER_TEMP_FRAME.origin.y + (s_obstruction_diff / 2);
+  layer_set_frame(text_layer_get_layer(s_temperature_layer), frame2);
+
+  GRect frame3 = layer_get_frame(bitmap_layer_get_layer(s_weather_icon_layer));
+  frame3.origin.y = WEATHER_ICON_FRAME.origin.y + (s_obstruction_diff / 2);
+  layer_set_frame(bitmap_layer_get_layer(s_weather_icon_layer), frame3);
+
+}
+
 // Initialize the default settings
 static void prv_default_settings() {
   settings.TopBackgroundColor = GColorBlack;
@@ -203,7 +253,7 @@ static void prv_save_settings() {
 
 
 void weather_set_icon(WeatherIcon icon) {
-  set_container_image(&s_weather_icon, s_weather_icon_layer, WEATHER_ICONS[icon], GPoint(ICON_X, ICON_Y));
+  set_container_image(&s_weather_icon, s_weather_icon_layer, WEATHER_ICONS[icon], GPoint(ICON_X, ICON_Y + (s_obstruction_diff / 2)));
 
   if (!gcolor_equal(settings.TopBackgroundColor, GColorWhite)) {
     swap_gbitmap_color(GColorWhite, settings.TopBackgroundColor, s_weather_icon, s_weather_icon_layer);
@@ -576,12 +626,12 @@ void handle_init(void) {
   window_stack_push(s_window, true /* Animated */);
   s_window_layer = window_get_root_layer(s_window);
   window_set_background_color(s_window, GColorBlack);
-  layer_set_update_proc(s_window_layer, update_background_callback);
+  //layer_set_update_proc(s_window_layer, update_background_callback);
 
   // BACKGROUND //
   s_background_layer = layer_create(layer_get_frame(s_window_layer));
   layer_add_child(s_window_layer, s_background_layer);
-  //layer_set_update_proc(s_background_layer, update_background_callback);
+  layer_set_update_proc(s_background_layer, update_background_callback);
 
   //BATTERY_ICONS
   s_battery_image = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_100);
@@ -681,6 +731,28 @@ void handle_init(void) {
 
   update_battery(battery_state_service_peek());
   battery_state_service_subscribe(&update_battery);
+
+  GRect fullscreen = layer_get_bounds(s_window_layer);
+  GRect unobstructed_bounds = layer_get_unobstructed_bounds(s_window_layer);
+
+  // Determine if the screen is obstructed when the app starts
+  s_screen_is_obstructed = !grect_equal(&fullscreen, &unobstructed_bounds);
+
+  if(s_screen_is_obstructed) {
+    // Hide things HERE
+  } else {
+    // Show things HERE
+  }
+  // Fire the handler to move things
+  prv_unobstructed_change(100, NULL);
+
+  // Subscribe to the unobstructed area events
+  UnobstructedAreaHandlers handlers = {
+    .will_change = prv_unobstructed_will_change,
+    .change = prv_unobstructed_change,
+    .did_change = prv_unobstructed_did_change
+  };
+  unobstructed_area_service_subscribe(handlers, NULL);
 }
 
 void handle_deinit(void) {
@@ -699,6 +771,7 @@ void handle_deinit(void) {
   tick_timer_service_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   battery_state_service_unsubscribe();
+  unobstructed_area_service_unsubscribe();
 
   text_layer_destroy(s_high_low_layer);
   text_layer_destroy(s_time_separator_layer);
