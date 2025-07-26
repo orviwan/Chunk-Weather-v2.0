@@ -1,7 +1,7 @@
 module.exports = [
   {
     "type": "heading",
-    "defaultValue": "Chunk Weather v4.0"
+    "defaultValue": "Chunk Weather v5.0"
   },
   {
     "type": "section",

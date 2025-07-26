@@ -1,7 +1,7 @@
-Chunk-Weather v2.0
+Chunk-Weather v5.0
 ==================
 
-Weather watch face for Pebble 2.0.
+Weather watch face for Pebble.
 
 Known issues
 -------------
